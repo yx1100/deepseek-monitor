@@ -36,12 +36,12 @@
 
 ### 下载安装
 
-从 [GitHub Releases](https://github.com/JayHome137/DeepSeekMonitor/releases) 下载最新 DMG，将 App 拖入 Applications 文件夹。
+从 [GitHub Releases](https://github.com/yx1100/deepseek-monitor/releases) 下载最新 DMG，将 App 拖入 Applications 文件夹。
 
 ### 源码构建
 
 ```bash
-git clone https://github.com/JayHome137/DeepSeekMonitor.git
+git clone https://github.com/yx1100/deepseek-monitor.git
 cd DeepSeekMonitor
 
 # 编译并运行
