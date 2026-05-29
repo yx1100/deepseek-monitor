@@ -44,9 +44,6 @@
 git clone https://github.com/JayHome137/DeepSeekMonitor.git
 cd DeepSeekMonitor
 
-# 生成 App 图标
-./build.sh icon-png
-
 # 编译并运行
 ./build.sh restart
 
