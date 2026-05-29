@@ -215,6 +215,13 @@ final class MenuBarManager: NSObject {
                 panelDragDidMove = false
 
             case .leftMouseDragged:
+                guard event.window === panel else {
+                    isDragging = false
+                    panelDragStartLocation = nil
+                    panelDragWindowOrigin = nil
+                    panelDragDidMove = false
+                    return event
+                }
                 guard isDragging,
                       let start = panelDragStartLocation,
                       let winOrigin = panelDragWindowOrigin else { return event }
@@ -238,6 +245,7 @@ final class MenuBarManager: NSObject {
                 ))
 
             case .leftMouseUp:
+                guard event.window === panel else { return event }
                 isDragging = false
                 panelDragStartLocation = nil
                 panelDragWindowOrigin = nil
