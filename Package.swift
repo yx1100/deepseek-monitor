@@ -13,7 +13,19 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "DeepSeekMonitor",
-            path: "Sources/DeepSeekMonitor",
+            path: ".",
+            exclude: [
+                "Resources",
+                "DeepSeekMonitor.app",
+                "build.sh",
+                "CLAUDE.md",
+                "README.md",
+                "PRIVACY.md",
+                "SECURITY.md",
+                "LICENSE",
+                ".gitignore",
+                ".claude",
+            ],
             linkerSettings: [
                 .linkedFramework("Security"),
                 .linkedFramework("WebKit")
