@@ -14,6 +14,11 @@ final class MenuBarManager: NSObject {
     private var hoverStateTimer: Timer?
     private var isMouseInsidePanel = false
     private var isMouseInsideDetailPanel = false
+    private var panelDragMonitor: Any?
+    private var panelDragStartLocation: NSPoint?
+    private var panelDragWindowOrigin: NSPoint?
+    private var panelDragDidMove = false
+    private var isDragging = false
     private var cancellables = Set<AnyCancellable>()
     private var notificationObservers: [NSObjectProtocol] = []
 
@@ -134,9 +139,14 @@ final class MenuBarManager: NSObject {
         NSApp.activate(ignoringOtherApps: true)
         panel.makeKeyAndOrderFront(nil)
         panel.orderFrontRegardless()
+
+        panel.isDetached = false
+        panel.level = .statusBar
+
         startHoverStateMonitoring()
         refreshHoverState()
         schedulePanelAutoClose()
+        startPanelDragMonitoring()
 
         monitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
             self?.closePanel()
@@ -156,11 +166,19 @@ final class MenuBarManager: NSObject {
             NSEvent.removeMonitor(monitor)
             self.monitor = nil
         }
+        if let dragMonitor = panelDragMonitor {
+            NSEvent.removeMonitor(dragMonitor)
+            panelDragMonitor = nil
+        }
+        panelDragStartLocation = nil
+        panelDragWindowOrigin = nil
+        panelDragDidMove = false
+        isDragging = false
     }
 
     private func schedulePanelAutoClose() {
         autoCloseTimer?.invalidate()
-        guard panel.isVisible, shouldPausePanelAutoClose == false else { return }
+        guard panel.isVisible, !panel.isDetached, shouldPausePanelAutoClose == false else { return }
         let duration = max(1, viewModel.panelResidenceSeconds)
         autoCloseTimer = Timer.scheduledTimer(withTimeInterval: duration, repeats: false) { [weak self] _ in
             Task { @MainActor [weak self] in
@@ -171,11 +189,86 @@ final class MenuBarManager: NSObject {
 
     private func startHoverStateMonitoring() {
         hoverStateTimer?.invalidate()
+        guard !panel.isDetached else { return }
         hoverStateTimer = Timer.scheduledTimer(withTimeInterval: 0.15, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
                 self?.refreshHoverState()
             }
         }
+    }
+
+    private func startPanelDragMonitoring() {
+        if let existing = panelDragMonitor {
+            NSEvent.removeMonitor(existing)
+        }
+        panelDragMonitor = NSEvent.addLocalMonitorForEvents(
+            matching: [.leftMouseDown, .leftMouseDragged, .leftMouseUp]
+        ) { [weak self] event in
+            guard let self, panel.isVisible else { return event }
+
+            switch event.type {
+            case .leftMouseDown:
+                guard event.window === panel else { return event }
+                isDragging = true
+                panelDragStartLocation = NSEvent.mouseLocation
+                panelDragWindowOrigin = panel.frame.origin
+                panelDragDidMove = false
+
+            case .leftMouseDragged:
+                guard isDragging,
+                      let start = panelDragStartLocation,
+                      let winOrigin = panelDragWindowOrigin else { return event }
+
+                let current = NSEvent.mouseLocation
+                let dx = current.x - start.x
+                let dy = current.y - start.y
+
+                if !panelDragDidMove {
+                    guard abs(dx) > Theme.detachDragThreshold else { return event }
+                }
+
+                if !panelDragDidMove {
+                    panelDragDidMove = true
+                    if !panel.isDetached { detachPanel() }
+                }
+
+                panel.setFrameOrigin(NSPoint(
+                    x: winOrigin.x + dx,
+                    y: winOrigin.y + dy
+                ))
+
+            case .leftMouseUp:
+                isDragging = false
+                panelDragStartLocation = nil
+                panelDragWindowOrigin = nil
+                panelDragDidMove = false
+
+            default:
+                break
+            }
+
+            return event
+        }
+    }
+
+    private func detachPanel() {
+        guard !panel.isDetached else { return }
+        panel.isDetached = true
+
+        autoCloseTimer?.invalidate()
+        autoCloseTimer = nil
+        hoverStateTimer?.invalidate()
+        hoverStateTimer = nil
+        isMouseInsidePanel = false
+        isMouseInsideDetailPanel = false
+
+        if let monitor {
+            NSEvent.removeMonitor(monitor)
+            self.monitor = nil
+        }
+
+        modelDetailWindowController.close()
+        panel.level = .floating
     }
 
     private var shouldPausePanelAutoClose: Bool {
@@ -319,4 +412,6 @@ private final class FloatingPanel: NSWindow {
         self.titlebarAppearsTransparent = true
         self.hidesOnDeactivate = false
     }
+
+    var isDetached = false
 }

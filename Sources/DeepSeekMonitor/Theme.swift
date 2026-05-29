@@ -10,6 +10,7 @@ enum Theme {
     static let panelHeight: CGFloat = 500
     static let panelCornerRadius: CGFloat = 22
     static let panelTopGap: CGFloat = 12
+    static let detachDragThreshold: CGFloat = 5
     static let detailPanelWidth: CGFloat = 420
     static let detailPanelGap: CGFloat = 10
 
