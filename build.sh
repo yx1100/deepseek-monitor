@@ -40,23 +40,25 @@ kill_running_app() {
 copy_app_resources() {
     APP_BUNDLE="$1"
 
-    cp "Resources/Info.plist" "${APP_BUNDLE}/Contents/"
+    RESOURCES_DIR="Sources/DeepSeekMonitor/Resources"
 
-    if [ -f "Resources/deepseek-color.svg" ]; then
-        cp "Resources/deepseek-color.svg" "${APP_BUNDLE}/Contents/Resources/"
+    cp "Info.plist" "${APP_BUNDLE}/Contents/"
+
+    if [ -f "${RESOURCES_DIR}/deepseek-color.svg" ]; then
+        cp "${RESOURCES_DIR}/deepseek-color.svg" "${APP_BUNDLE}/Contents/Resources/"
     fi
-    if [ -f "Resources/deepseek-color.png" ]; then
-        cp "Resources/deepseek-color.png" "${APP_BUNDLE}/Contents/Resources/"
+    if [ -f "${RESOURCES_DIR}/deepseek-color.png" ]; then
+        cp "${RESOURCES_DIR}/deepseek-color.png" "${APP_BUNDLE}/Contents/Resources/"
     fi
-    if [ -f "Resources/deepseek-menu.png" ]; then
-        cp "Resources/deepseek-menu.png" "${APP_BUNDLE}/Contents/Resources/"
+    if [ -f "${RESOURCES_DIR}/deepseek-menu.png" ]; then
+        cp "${RESOURCES_DIR}/deepseek-menu.png" "${APP_BUNDLE}/Contents/Resources/"
     fi
 
-    if [ -f "Resources/AppIcon.icns" ]; then
-        cp "Resources/AppIcon.icns" "${APP_BUNDLE}/Contents/Resources/"
+    if [ -f "${RESOURCES_DIR}/AppIcon.icns" ]; then
+        cp "${RESOURCES_DIR}/AppIcon.icns" "${APP_BUNDLE}/Contents/Resources/"
         info "已添加 App 图标"
     else
-        warn "未找到 Resources/AppIcon.icns，使用默认图标"
+        warn "未找到 ${RESOURCES_DIR}/AppIcon.icns，使用默认图标"
         warn "运行 ./build.sh icon 从 SVG 生成图标"
     fi
 }
@@ -145,8 +147,8 @@ case "$MODE" in
 
     icon)
         info "从 SVG 生成 App 图标..."
-        SVG_FILE="Resources/deepseek-color.svg"
-        ICNS_FILE="Resources/AppIcon.icns"
+        SVG_FILE="Sources/DeepSeekMonitor/Resources/deepseek-color.svg"
+        ICNS_FILE="Sources/DeepSeekMonitor/Resources/AppIcon.icns"
         ICONSET="AppIcon.iconset"
 
         if [ ! -f "$SVG_FILE" ]; then
@@ -195,6 +197,45 @@ case "$MODE" in
         fi
         ;;
 
+    icon-png)
+        PNG_FILE="${2:-Sources/DeepSeekMonitor/Resources/logo.png}"
+        ICNS_FILE="Sources/DeepSeekMonitor/Resources/AppIcon.icns"
+        ICONSET="AppIcon.iconset"
+
+        if [ ! -f "$PNG_FILE" ]; then
+            error "未找到 PNG 文件: $PNG_FILE"
+            exit 1
+        fi
+
+        info "从 PNG 生成 App 图标..."
+        info "源文件: $PNG_FILE"
+
+        rm -rf "$ICONSET"
+        mkdir -p "$ICONSET"
+
+        for size in 16 32 64 128 256 512 1024; do
+            sips -z $size $size "$PNG_FILE" --out "${ICONSET}/icon_${size}x${size}.png" > /dev/null 2>&1
+
+            if [ $size -le 512 ]; then
+                half=$((size / 2))
+                if [ $half -ge 16 ]; then
+                    cp "${ICONSET}/icon_${size}x${size}.png" \
+                       "${ICONSET}/icon_${half}x${half}@2x.png"
+                fi
+            fi
+        done
+
+        iconutil -c icns "$ICONSET" -o "$ICNS_FILE"
+        rm -rf "$ICONSET"
+
+        if [ -f "$ICNS_FILE" ]; then
+            info "图标生成完成: $ICNS_FILE"
+        else
+            error "图标生成失败"
+            exit 1
+        fi
+        ;;
+
     restart)
         # 构建 + 自动重启
         "$0" release
@@ -209,7 +250,7 @@ case "$MODE" in
         "$0" release
 
         APP_BUNDLE="${PROJECT_NAME}.app"
-        DMG_NAME="${PROJECT_NAME}-v1.2.0"
+        DMG_NAME="${PROJECT_NAME}-v1.5.0"
         DMG_TEMP="${DMG_NAME}-temp.dmg"
         DMG_FINAL="${DMG_NAME}.dmg"
         STAGING="dmg-staging"
@@ -241,7 +282,7 @@ case "$MODE" in
         ;;
 
     *)
-        echo "用法: $0 {debug|release|run|clean|icon|restart|dmg}"
+        echo "用法: $0 {debug|release|run|clean|icon|icon-png|restart|dmg}"
         exit 1
         ;;
 esac

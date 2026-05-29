@@ -1,85 +1,78 @@
 # DeepSeek Monitor
 
-macOS 菜单栏工具 — 实时监控 DeepSeek V4 Flash / Pro Token 消耗和消费。
+A native macOS menu bar app for real-time DeepSeek API usage and billing monitoring.
 
 <p align="center">
-  <img src="Resources/screenshot-panel.png" width="360" alt="主面板" />
+  <img src="Sources/DeepSeekMonitor/Resources/screenshot-panel.png" width="360" alt="Dashboard" />
   <br />
-  <em>主面板：余额 + 模型用量 + 趋势图</em>
+  <em>Dashboard: balance, model usage, and 7-day trend chart</em>
 </p>
 
-## 功能
+## Features
 
-- **余额监控** — 实时显示 DeepSeek 账户余额（总余额、本月消费）
-- **Token 用量** — 按模型（V4 Flash / V4 Pro）展示 Token 消耗和费用
-- **消耗趋势** — 近 7 天 Token 消耗柱状图
-- **用量导入** — 支持从 DeepSeek Usage 页面导出 CSV 并手动/自动导入
-- **自动导出** — 通过 WKWebView 自动登录 DeepSeek 平台并触发用量导出
-- **本地缓存** — App 重启后立即显示上次数据，不白屏
+- **Balance Monitoring** — real-time account balance display (total balance, current month spend)
+- **Token Usage** — per-model token consumption and cost tracking (V4 Flash / V4 Pro)
+- **Usage Trends** — 7-day token consumption bar chart with daily breakdown
+- **CSV Import** — manual and automatic import from DeepSeek usage exports (.csv / .zip)
+- **Auto Export** — automated DeepSeek platform login via WKWebView with one-click usage export
+- **Local Caching** — instant data display on app restart, no blank screens
 
 <p align="center">
-  <img src="Resources/screenshot-settings.png" width="420" alt="设置面板" />
+  <img src="Sources/DeepSeekMonitor/Resources/screenshot-settings.png" width="420" alt="Settings" />
   <br />
-  <em>设置面板：API Key 配置 + 刷新间隔 + 用量导入 + 缓存管理</em>
+  <em>Settings: API key, refresh interval, usage import, and cache management</em>
 </p>
 
-## 安装
+## Installation
 
-### 从源码构建
+### Download
+
+Download the latest DMG from [GitHub Releases](https://github.com/JayHome137/DeepSeekMonitor/releases) and drag the app into Applications.
+
+### Build from Source
 
 ```bash
 git clone https://github.com/JayHome137/DeepSeekMonitor.git
 cd DeepSeekMonitor
 
-# 生成 App 图标
-./build.sh icon
+# Generate app icon
+./build.sh icon-png
 
-# 编译并运行
+# Build and launch
 ./build.sh restart
 
-# 打包 DMG
+# Package as DMG
 ./build.sh dmg
 ```
 
-### 从 DMG 安装
+## Usage
 
-前往 [GitHub Releases](https://github.com/JayHome137/DeepSeekMonitor/releases) 下载最新版本 DMG，将 App 拖入 Applications 文件夹。
+1. Click the menu bar icon → right-click **Settings** (设置)
+2. Enter your [DeepSeek API Key](https://platform.deepseek.com/api_keys)
+3. Click **Verify & Save** (验证并保存)
+4. The dashboard automatically displays your balance and usage data
 
-## 使用
+If the usage API endpoint is unavailable, import data manually via Settings → Usage Import — export a CSV from the [DeepSeek Usage page](https://platform.deepseek.com/usage) and import it directly.
 
-1. 点击菜单栏 DeepSeek 图标 → 右键 **设置**
-2. 输入你的 [DeepSeek API Key](https://platform.deepseek.com/api_keys)
-3. 点击 **验证并保存**
-4. 面板自动显示余额和用量数据
+## Tech Stack
 
-如果用量接口不可用，可通过设置面板中的「用量导入」从 DeepSeek Usage 页面导出 CSV 手动导入。
+| Layer | Technologies |
+|---|---|
+| Language | Swift 5.9+ |
+| UI | SwiftUI + AppKit (NSStatusBar, NSWindow/NSPanel) |
+| Networking | URLSession — DeepSeek API |
+| Automation | WKWebView + JavaScript injection |
+| State | Combine / ObservableObject / @Published |
+| Storage | UserDefaults (LocalCache + API Key fallback) |
+| File Monitoring | DispatchSourceFileSystemObject |
+| Build | Swift Package Manager + Shell scripts |
 
-## 技术栈
+## Requirements
 
-**语言 / 框架**
-- Swift 5.9+ / SwiftUI / AppKit
+- macOS 14 Sonoma or later
+- Apple Silicon or Intel (Universal Binary)
+- A [DeepSeek API Key](https://platform.deepseek.com/api_keys)
 
-**桌面交互**
-- NSStatusBar 菜单栏 + NSWindow / NSPanel 浮动面板
-- NSTrackingArea 鼠标悬停检测 + 自动关闭
-
-**数据来源**
-- URLSession — DeepSeek API 余额 + 用量查询
-- WKWebView + JavaScript 注入 — DeepSeek 平台自动导出
-- 自实现 CSV 解析器 — 中英文列名、ZIP 解压、金额单位转换
-
-**状态管理**
-- Combine / ObservableObject / @Published
-- UserDefaults — LocalCache + API Key 降级
-- Security — Keychain 钥匙串存储
-
-**文件监控**
-- DispatchSourceFileSystemObject — 下载目录实时监测
-
-**构建**
-- Swift Package Manager
-- Shell 脚本 — 编译 / 图标生成 / DMG 打包
-
-## 许可证
+## License
 
 MIT

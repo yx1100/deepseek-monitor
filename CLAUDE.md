@@ -19,17 +19,17 @@ MVVM:  AppDelegate → MenuBarManager → DashboardViewModel → DeepSeekService
 
 | File | Role |
 |---|---|
-| `App.swift` | `@main` entry, `@MainActor AppDelegate`, system sleep/wake handling |
-| `MenuBarManager.swift` | NSStatusBar + FloatingPanel (NSWindow) + NSTrackingArea hover detection + auto-close timer |
-| `DashboardViewModel.swift` | `@MainActor ObservableObject`, 60s polling, balance/usage aggregation, cache, CSV import |
-| `DeepSeekService.swift` | URLSession calls to `/user/balance` and `/v1/usage`, APIError enum, UserDefaults storage |
-| `Theme.swift` | Brand colors, panel dimensions, card styles, gradients — all UI constants live here |
-| `Models.swift` | BalanceResponse, UsageRecord, DeepSeekModel enum, usage summary models |
-| `LocalCache.swift` | Dashboard state snapshot + usage records cached in UserDefaults |
-| `UsageCSVImporter.swift` | Self-contained CSV parser — multi-language headers, date formats, amount/cents conversion |
-| `UsageAutoImportService.swift` | Watches Downloads + usage-sync folder for new CSV/ZIP, unzips via `/usr/bin/ditto` |
-| `UsageExportAutomationService.swift` | WKWebView automation — opens DeepSeek platform, JS injection to click export, download interception |
-| `DirectoryChangeMonitor.swift` | `DispatchSourceFileSystemObject`-based file watcher |
+| `Sources/DeepSeekMonitor/App.swift` | `@main` entry, `@MainActor AppDelegate`, system sleep/wake handling |
+| `Sources/DeepSeekMonitor/MenuBarManager.swift` | NSStatusBar + FloatingPanel (NSWindow) + NSTrackingArea hover detection + auto-close timer |
+| `Sources/DeepSeekMonitor/ViewModels/DashboardViewModel.swift` | `@MainActor ObservableObject`, 60s polling, balance/usage aggregation, cache, CSV import |
+| `Sources/DeepSeekMonitor/Services/DeepSeekService.swift` | URLSession calls to `/user/balance` and `/v1/usage`, APIError enum, UserDefaults storage |
+| `Sources/DeepSeekMonitor/Theme.swift` | Brand colors, panel dimensions, card styles, gradients — all UI constants live here |
+| `Sources/DeepSeekMonitor/Models.swift` | BalanceResponse, UsageRecord, DeepSeekModel enum, usage summary models |
+| `Sources/DeepSeekMonitor/Services/LocalCache.swift` | Dashboard state snapshot + usage records cached in UserDefaults |
+| `Sources/DeepSeekMonitor/Services/UsageCSVImporter.swift` | Self-contained CSV parser — multi-language headers, date formats, amount/cents conversion |
+| `Sources/DeepSeekMonitor/Services/UsageAutoImportService.swift` | Watches Downloads + usage-sync folder for new CSV/ZIP, unzips via `/usr/bin/ditto` |
+| `Sources/DeepSeekMonitor/Services/UsageExportAutomationService.swift` | WKWebView automation — opens DeepSeek platform, JS injection to click export, download interception |
+| `Sources/DeepSeekMonitor/Services/DirectoryChangeMonitor.swift` | `DispatchSourceFileSystemObject`-based file watcher |
 
 ## Build & Run
 
