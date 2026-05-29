@@ -15,6 +15,7 @@ DerivedData/
 .DS_Store
 *.app
 *.dmg
+*.icns
 *.xcarchive
 
 # IDEs
@@ -23,6 +24,9 @@ DerivedData/
 *.swp
 *.swo
 *~
+
+# Claude Code
+.claude/
 
 # Build artifacts
 dmg-staging/
