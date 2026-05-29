@@ -76,29 +76,14 @@ create_app_bundle() {
     copy_app_resources "$APP_BUNDLE"
 }
 
-build_release_universal() {
-    ARM_TRIPLE="arm64-apple-macosx14.0"
-    INTEL_TRIPLE="x86_64-apple-macosx14.0"
-    UNIVERSAL_DIR="${BUILD_DIR}/universal/release"
-    UNIVERSAL_BIN="${UNIVERSAL_DIR}/${PROJECT_NAME}"
+build_release() {
+    info "编译 Apple Silicon 架构..."
 
-    info "编译 Apple Silicon 架构 (${ARM_TRIPLE})..."
-    swift build -c release --triple "$ARM_TRIPLE"
-    ARM_BIN_DIR=$(swift build -c release --triple "$ARM_TRIPLE" --show-bin-path)
-    ARM_BIN="${ARM_BIN_DIR}/${PROJECT_NAME}"
+    swift build -c release
+    BIN_DIR=$(swift build -c release --show-bin-path)
+    BIN="${BIN_DIR}/${PROJECT_NAME}"
 
-    info "编译 Intel 架构 (${INTEL_TRIPLE})..."
-    swift build -c release --triple "$INTEL_TRIPLE"
-    INTEL_BIN_DIR=$(swift build -c release --triple "$INTEL_TRIPLE" --show-bin-path)
-    INTEL_BIN="${INTEL_BIN_DIR}/${PROJECT_NAME}"
-
-    mkdir -p "$UNIVERSAL_DIR"
-    info "合并 Universal Binary..."
-    lipo -create "$ARM_BIN" "$INTEL_BIN" -output "$UNIVERSAL_BIN"
-    chmod +x "$UNIVERSAL_BIN"
-    lipo -info "$UNIVERSAL_BIN"
-
-    create_app_bundle "$UNIVERSAL_BIN"
+    create_app_bundle "$BIN"
 }
 
 # 检测 Xcode 命令行工具
@@ -123,10 +108,10 @@ case "$MODE" in
         ;;
 
     release)
-        info "Release Universal 构建..."
+        info "Release 构建..."
 
         kill_running_app
-        build_release_universal
+        build_release
 
         info "Release 构建完成！"
         info "App Bundle: ${PROJECT_NAME}.app"
@@ -250,7 +235,7 @@ case "$MODE" in
         "$0" release
 
         APP_BUNDLE="${PROJECT_NAME}.app"
-        DMG_NAME="${PROJECT_NAME}-v1.5.0"
+        DMG_NAME="${PROJECT_NAME}-v1.5.1"
         DMG_TEMP="${DMG_NAME}-temp.dmg"
         DMG_FINAL="${DMG_NAME}.dmg"
         STAGING="dmg-staging"

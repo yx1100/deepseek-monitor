@@ -62,17 +62,18 @@ final class MenuBarManager: NSObject {
         statusMenu.autoenablesItems = false
         statusMenu.removeAllItems()
 
-        addStatusMenuItem(title: "刷新", action: #selector(manualRefresh), keyEquivalent: "r")
+        addStatusMenuItem(title: "刷新", action: #selector(manualRefresh), keyEquivalent: "r", icon: "arrow.clockwise")
         statusMenu.addItem(.separator())
-        addStatusMenuItem(title: "设置", action: #selector(openSettings), keyEquivalent: ",")
+        addStatusMenuItem(title: "设置", action: #selector(openSettings), keyEquivalent: ",", icon: "gearshape")
         statusMenu.addItem(.separator())
-        addStatusMenuItem(title: "退出", action: #selector(quitApp), keyEquivalent: "q")
+        addStatusMenuItem(title: "退出", action: #selector(quitApp), keyEquivalent: "q", icon: "rectangle.portrait.and.arrow.right")
     }
 
-    private func addStatusMenuItem(title: String, action: Selector, keyEquivalent: String) {
+    private func addStatusMenuItem(title: String, action: Selector, keyEquivalent: String, icon: String) {
         let item = NSMenuItem(title: title, action: action, keyEquivalent: keyEquivalent)
         item.target = self
         item.isEnabled = true
+        item.image = NSImage(systemSymbolName: icon, accessibilityDescription: nil)
         statusMenu.addItem(item)
     }
 

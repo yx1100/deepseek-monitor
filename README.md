@@ -70,7 +70,7 @@ If the usage API endpoint is unavailable, import data manually via Settings → 
 ## Requirements
 
 - macOS 14 Sonoma or later
-- Apple Silicon or Intel (Universal Binary)
+- Apple Silicon
 - A [DeepSeek API Key](https://platform.deepseek.com/api_keys)
 
 ## License
