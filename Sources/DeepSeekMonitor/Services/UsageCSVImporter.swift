@@ -389,11 +389,13 @@ enum UsageCSVImporter {
         let text = raw.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard text.isEmpty == false else { return nil }
 
-        if text.contains("deepseek-v4-pro") || text.contains("deepseek-reasoner") || text.contains("reasoner") || text.contains("pro") {
+        // 按非字母数字字符分割，避免 "pro" 误匹配 "approximate" / "proper" 等
+        let tokens = text.split { !$0.isLetter && !$0.isNumber }.map(String.init)
+
+        if tokens.contains("reasoner") || tokens.contains("pro") || tokens.contains("r1") {
             return DeepSeekModel.pro.rawValue
         }
-
-        if text.contains("deepseek-v4-flash") || text.contains("deepseek-chat") || text.contains("flash") || text.contains("chat") {
+        if tokens.contains("chat") || tokens.contains("flash") {
             return DeepSeekModel.flash.rawValue
         }
 

@@ -56,14 +56,18 @@ final class DashboardViewModel: ObservableObject {
     /// 是否已配置 API Key
     @Published private(set) var hasAPIKey: Bool = false
     /// 面板驻留时间（秒）
+    private var isNormalizingPanelResidence = false
+
     @Published var panelResidenceSeconds: TimeInterval = UserDefaults.standard.double(forKey: "panel_residence_seconds") {
         didSet {
+            guard !isNormalizingPanelResidence else { return }
             let normalized = Self.normalizedPanelResidence(panelResidenceSeconds)
-            if normalized != panelResidenceSeconds {
-                panelResidenceSeconds = normalized
-                return
-            }
             UserDefaults.standard.set(normalized, forKey: "panel_residence_seconds")
+            if normalized != panelResidenceSeconds {
+                isNormalizingPanelResidence = true
+                panelResidenceSeconds = normalized
+                isNormalizingPanelResidence = false
+            }
         }
     }
 
@@ -631,11 +635,11 @@ final class DashboardViewModel: ObservableObject {
     }
 
     private func normalizedModelName(_ name: String) -> DeepSeekModel? {
-        let normalized = name.lowercased()
-        if normalized.contains("reasoner") || normalized.contains("pro") {
+        let tokens = name.lowercased().split { !$0.isLetter && !$0.isNumber }.map(String.init)
+        if tokens.contains("reasoner") || tokens.contains("pro") || tokens.contains("r1") {
             return .pro
         }
-        if normalized.contains("chat") || normalized.contains("flash") {
+        if tokens.contains("chat") || tokens.contains("flash") {
             return .flash
         }
         return nil
