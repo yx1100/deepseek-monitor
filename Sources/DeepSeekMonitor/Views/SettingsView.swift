@@ -19,6 +19,7 @@ struct SettingsView: View {
     @State private var isVerifying = false
     @State private var verifyStatus: VerifyStatus = .idle
     @State private var usageImportStatus: UsageImportStatus = .idle
+    @FocusState private var isAPIKeyFocused: Bool
 
     // 刷新间隔选项
     private let intervalOptions: [(label: String, value: TimeInterval)] = [
@@ -150,6 +151,7 @@ struct SettingsView: View {
             // 输入框
             HStack(spacing: 8) {
                 SecureField("sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", text: $apiKeyInput)
+                    .focused($isAPIKeyFocused)
                     .textFieldStyle(.roundedBorder)
                     .font(.body)
                     .disableAutocorrection(true)

@@ -23,6 +23,9 @@ final class SettingsWindowController: NSObject {
             window.makeKeyAndOrderFront(nil)
             window.orderFrontRegardless()
             NSApp.activate(ignoringOtherApps: true)
+            DispatchQueue.main.async {
+                window.makeFirstResponder(nil)
+            }
             return
         }
 
@@ -49,6 +52,9 @@ final class SettingsWindowController: NSObject {
         window.makeKeyAndOrderFront(nil)
         window.orderFrontRegardless()
         NSApp.activate(ignoringOtherApps: true)
+        DispatchQueue.main.async {
+            window.makeFirstResponder(nil)
+        }
     }
 
     @MainActor
